@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+	<div>
+		<p>News Query Results (searched for "{{ search_term }}"):</p>
+		<ul>
+		{% for video in videos %}
+			<li><a href="{{ video.url }}">{{ video.title }}</a></li>
+		{% endfor %}			
+		</ul>
+	</div>
+</html>
