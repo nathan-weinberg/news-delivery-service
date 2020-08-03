@@ -21,7 +21,7 @@ def generate_query():
 	yesteday_object = datetime.datetime.now() - datetime.timedelta(days=1)
 	yesterday_day_number = int(datetime.datetime.strftime(yesteday_object, '%d'))
 	yesterday_suffix = get_suffix(yesterday_day_number)
-	yesterdate = datetime.datetime.strftime(yesteday_object, '%B %d{}, %Y'.format(yesterday_suffix))
+	yesterdate = datetime.datetime.strftime(yesteday_object, '%B %-d{}, %Y'.format(yesterday_suffix))
 	search_term = "Nightly News {}".format(yesterdate)
 	return search_term
 
