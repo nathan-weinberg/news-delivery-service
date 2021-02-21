@@ -18,10 +18,10 @@ YOUTUBE_API_VERSION = 'v3'
 def generate_query():
 	''' generates YouTube API search term to be used in query
 	'''
-	yesteday_object = datetime.datetime.now() - datetime.timedelta(days=1)
-	yesterday_day_number = int(datetime.datetime.strftime(yesteday_object, '%d'))
+	yesterday_object = datetime.datetime.now() - datetime.timedelta(days=1)
+	yesterday_day_number = int(datetime.datetime.strftime(yesterday_object, '%d'))
 	yesterday_suffix = get_suffix(yesterday_day_number)
-	yesterdate = datetime.datetime.strftime(yesteday_object, '%B %-d{}, %Y'.format(yesterday_suffix))
+	yesterdate = datetime.datetime.strftime(yesterday_object, '%B %-d{}, %Y'.format(yesterday_suffix))
 	search_term = "Nightly News {}".format(yesterdate)
 	return search_term
 
@@ -75,10 +75,11 @@ def send_mail(content):
 		response = smtp.sendmail(msg['From'], recipients, msg.as_string())
 
 		# log success if all recipients recieved report, otherwise raise exception
+		now = datetime.datetime.now()
 		if response == {}:
-			print("Report successfully accepted by mail server for delivery")
+			print("[{}] Report successfully accepted by mail server for delivery".format(now))
 		else:
-			raise Exception("Mail server cannot deliver report to following recipients: {}".format(response))
+			raise Exception("[{}] Mail server cannot deliver report to following recipients: {}".format(now, response))
 
 
 def youtube_search(search_term):
@@ -107,13 +108,15 @@ def youtube_search(search_term):
 
 if __name__ == '__main__':
 
+	now = datetime.datetime.now()
+
 	# get configuration data
 	try:
 		with open("config.yaml", 'r') as file:
 			config = yaml.safe_load(file)
 	except Exception as e:
-		print("Error loading configuration data: ", e)
-		sys.exit()
+		print("[{}] Error loading configuration data: {}".format(now, e))
+		sys.exit(1)
 
 	# generate seach term
 	search_term = generate_query()
@@ -122,9 +125,9 @@ if __name__ == '__main__':
 	try:
 		videos = youtube_search(search_term)
 	except HttpError as e:
-		print('An HTTP error {} occurred:\n{}'.format(e.resp.status, e.content))
-		sys.exit()
-	
+		print("[{}] An HTTP error {} occurred:\n{}".format(now, e.resp.status, e.content))
+		sys.exit(1)
+
 	# generate email content
 	content = generate_content(search_term, videos)
 
@@ -132,5 +135,5 @@ if __name__ == '__main__':
 	try:
 		send_mail(content)
 	except Exception as e:
-		print('Error sending email report: {}'.format(e))
-		sys.exit()
+		print("[{}] Error sending email report: {}".format(now, e))
+		sys.exit(1)
